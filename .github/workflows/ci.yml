@@ -1,74 +1,68 @@
-name: ci
+name: CI
 
 on:
   push:
-    branches:
-    - master
-    - release/*
+    branches: [ "master" ]
   pull_request:
-    branches:
-    - master
-    - release/*
+    branches: [ "master" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  cargo-test:
-    name: cargo test (${{ matrix.os }} / ${{ matrix.rust-version }} / ${{ matrix.runtime }})
-    runs-on: ${{ matrix.os }}
+  build:
     strategy:
       fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        rust-version: [1.64.0, beta, nightly]
+        rust-version: [stable, beta, nightly]
         runtime: [runtime-tokio, runtime-agnostic]
         include:
         - rust-version: nightly
           continue-on-error: true
+
+    name: build (${{ matrix.os }} / ${{ matrix.rust-version }} / ${{ matrix.runtime }})
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@master
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@master
       with:
         toolchain: ${{ matrix.rust-version }}
-    - name: Run cargo test
+    - name: Build
       continue-on-error: ${{ matrix.continue-on-error || false }}
-      run: |
-        cargo +${{ matrix.rust-version }} test --workspace --no-default-features --features ${{ matrix.runtime }}
+      run: cargo build --workspace --no-default-features --features ${{ matrix.runtime }}
+    - name: Run tests
+      continue-on-error: ${{ matrix.continue-on-error || false }}
+      run: cargo test --workspace --no-default-features --features ${{ matrix.runtime }}
 
-  cargo-audit:
-    name: cargo audit
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - uses: actions-rs/audit-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+  lint:
+    name: clippy
 
-  cargo-clippy:
-    name: cargo clippy
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    - id: install-rust
-      name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@1.64.0
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
       with:
         components: clippy
-    - name: Run cargo clippy
-      uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        toolchain: ${{ steps.install-rust.outputs.name }}
-        args: --all-targets --features proposed -- -D warnings
+    - name: Lint
+      run: cargo clippy --all-targets --features proposed -- -D warnings
 
-  cargo-fmt:
-    name: cargo fmt
+  format:
+    name: rustfmt
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    - id: install-rust
-      name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@1.64.0
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
       with:
         components: rustfmt
-    - name: Run cargo fmt
-      run: cargo +${{ steps.install-rust.outputs.name }} fmt --all -- --check
+    - name: 
+      run: cargo fmt --all -- --check
