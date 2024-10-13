@@ -120,7 +120,9 @@ async fn main() {
     #[cfg(feature = "runtime-agnostic")]
     use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
-    tracing_subscriber::fmt().init();
+    tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .init();
 
     let (stdin, stdout) = (tokio::io::stdin(), tokio::io::stdout());
     #[cfg(feature = "runtime-agnostic")]
