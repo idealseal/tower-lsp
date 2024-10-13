@@ -61,6 +61,7 @@ impl Pending {
     }
 }
 
+#[allow(dead_code)]
 impl Debug for Pending {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         #[derive(Debug)]
