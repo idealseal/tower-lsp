@@ -21,29 +21,37 @@ runtime-tokio = ["tokio", "tokio-util"]
 proposed = ["lsp-types/proposed"]
 
 [dependencies]
-async-codec-lite = { version = "0.0", optional = true }
-async-trait = "0.1"
-auto_impl = "1.0"
-bytes = "1.0"
-dashmap = "5.1"
-futures = { version = "0.3", default-features = false, features = ["std", "async-await"] }
-httparse = "1.8"
+async-codec-lite = { version = "0.0.2", optional = true }
+async-trait = "0.1.83"
+auto_impl = "1.2.0"
+bytes = "1.7.2"
+dashmap = "6.1.0"
+futures = { version = "0.3.31", default-features = false, features = [
+  "std",
+  "async-await",
+] }
+httparse = "1.9.5"
 lsp-types = "0.94.1"
-memchr = "2.5"
+memchr = "2.7.4"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde_json = "1.0.128"
 tokio = { version = "1.17", optional = true }
 tokio-util = { version = "0.7", optional = true, features = ["codec"] }
-tower-lsp-macros = { version = "0.9", path = "./tower-lsp-macros" }
-tower = { version = "0.4", default-features = false, features = ["util"] }
+tower-lsp-macros = { version = "0.9.0", path = "./tower-lsp-macros" }
+tower = { version = "0.5.1", default-features = false, features = ["util"] }
 tracing = "0.1"
 
 [dev-dependencies]
-async-tungstenite = { version = "0.22", features = ["tokio-runtime"] }
-tracing-subscriber = "0.3"
-tokio = { version = "1.17", features = ["io-util", "io-std", "macros", "rt-multi-thread"] }
-tokio-util = { version = "0.7", features = ["compat"] }
-ws_stream_tungstenite = { version = "0.10", features = ["tokio_io"] }
+async-tungstenite = { version = "0.28.0", features = ["tokio-runtime"] }
+tracing-subscriber = "0.3.18"
+tokio = { version = "1.40.0", features = [
+  "io-util",
+  "io-std",
+  "macros",
+  "rt-multi-thread",
+] }
+tokio-util = { version = "0.7.12", features = ["compat"] }
+ws_stream_tungstenite = { version = "0.14.0", features = ["tokio_io"] }
 
 [workspace]
 members = [".", "./tower-lsp-macros"]
